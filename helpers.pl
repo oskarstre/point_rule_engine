@@ -1,6 +1,6 @@
 :- module(hepers, [
                days_between/3, all_purchases/2, last_purchase/2, last_last_purchase/2, bigger_or_equal/2,
-               now/1, add_days/3, date_between/3, purchases_days/3, add_points/5, add_price_convert_rate/4, add_price_convert_rate/6
+               now/1, add_days/3, date_between/3, purchases_days/3, add_points/5, add_price_convert_rate/5, add_price_convert_rate/7
                 ]).
 
 :- use_module(declarations).
@@ -62,15 +62,8 @@ last_last_purchase(Purchases, P) :- length(Purchases, L), L2 is L - 2, nth0(L2, 
 add_points(CustomerId, PointsType, Points, Purchase, ExpireDate) :-
     assert(point(CustomerId, PointsType, Points, Purchase, ExpireDate)).
 
-add_price_convert_rate(PointsType, Channel, Region, ConvRate) :-
-    asserta(price_convert_rate(PointsType, Channel, Region, ConvRate)).
+add_price_convert_rate(PointsType, Channel, Region, Campaign, ConvRate) :-
+    asserta(price_convert_rate(PointsType, Channel, Region, Campaign, ConvRate)).
 
-add_price_convert_rate(PointsType, Channel, Region, FromDate, ToDate, ConvRate) :-
-    asserta(price_convert_rate(PointsType, Channel, Region, FromDate, ToDate, ConvRate)).
-
-
-
-
-
-
-
+add_price_convert_rate(PointsType, Channel, Region, Campaign, FromDate, ToDate, ConvRate) :-
+    asserta(price_convert_rate(PointsType, Channel, Region, Campaign, FromDate, ToDate, ConvRate)).
