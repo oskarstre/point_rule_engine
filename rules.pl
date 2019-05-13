@@ -6,18 +6,20 @@
 :- use_module(helpers).
 :- use_module(defaults).
 
-points_date(purchase(_PersonId, _ProductId, _Price, Channel, Location, Campaign, Date), (PointType, ConvRate)) :-
+point_logic(purchase(_PersonId, _ProductId, _Price, Channel, Location, Campaign, _Date), price_convert_rate(_PointType, CChannel, CLocation, CCampaign, _ConvRate)) :-
+    (   (CChannel == Channel ; CChannel == *) -> true ; fail ),
+    (   (CLocation == Location ; CLocation == *) -> true ; fail),
+    (   (CCampaign == Campaign ; CCampaign == *) -> true ; fail).
+
+
+points_date(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date), (PointType, ConvRate)) :-
     price_convert_rate(PointType, CChannel, CLocation, CCampaign, StartDate, EndDate, ConvRate),
-    (   (CChannel == Channel ; CChannel == -) ->
-    (   (CLocation == Location ; CLocation == -) ->
-    (   (CCampaign == Campaign ; CCampaign == -) -> true ; fail) ; fail) ; fail),
+    point_logic(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date),  price_convert_rate(PointType, CChannel, CLocation, CCampaign, ConvRate)),
     date_between(StartDate, EndDate, Date).
 
-points(purchase(_PersonId, _ProductId, _Price, Channel, Location, Campaign, _Date), (PointType, ConvRate)) :-
+points(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date), (PointType, ConvRate)) :-
     price_convert_rate(PointType, CChannel, CLocation, CCampaign, ConvRate),
-        (   (CChannel == Channel ; CChannel == -) ->
-        (   (CLocation == Location ; CLocation == -) ->
-        (   (CCampaign == Campaign ; CCampaign == -) -> true ; fail) ; fail) ; fail).
+    point_logic(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date),  price_convert_rate(PointType, CChannel, CLocation, CCampaign, ConvRate)).
 
 get_all_points_from_purchase(Purchase, Points) :-
     findall(P, points(Purchase, P), AllPoints),
