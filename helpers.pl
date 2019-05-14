@@ -1,10 +1,12 @@
-:- module(hepers, [
+:- module(helpers, [
                days_between/3, all_purchases/2, last_purchase/2, last_last_purchase/2, bigger_or_equal/2,
-               now/1, add_days/3, date_between/3, purchases_days/3, add_points/5, add_price_convert_rate/9, add_price_convert_rate/11
+               now/1, add_days/3, date_between/3, purchases_days/3, add_points/5, add_price_convert_rate/9, add_price_convert_rate/11,
+               purchases_within_days/3
                 ]).
 
 :- use_module(declarations).
 :- use_module(defaults).
+:- use_module(library(apply)).
 
 
 days_between(date(Y1, M1, D1), date(Y2, M2, D2), Days) :-
@@ -67,3 +69,19 @@ add_price_convert_rate(PointsType, Channel, Region, Campaign, Product, Category,
 
 add_price_convert_rate(PointsType, Channel, Region, Campaign, Product, Category,ConvertRate, AddPoints, StartDate, EndDate, RuleId) :-
     asserta(price_convert_rate(PointsType, Channel, Region, Campaign,  Product, Category, ConvertRate, AddPoints, StartDate, EndDate, RuleId)).
+
+% find all purchases for a person within x days
+
+purchase_within(PersonId, StartDate, Purchase) :-
+     purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date),
+     Purchase = purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date),
+     bigger_or_equal(StartDate, Date).
+
+add_purchase(purchase(_PersonId, _ProductId, Price, _Channel, _Location, _Campaign, _Date), Y, Sum) :- Sum is Y + Price.
+
+purchases_within_days(PersonId, Days, (Purchases, Value)) :-
+     now(Now),
+     DaysNeg is Days * -1,
+     add_days(Now, DaysNeg, StartDate),
+     findall(Purchase,purchase_within(PersonId, StartDate, Purchase), Purchases),
+     foldl(add_purchase,Purchases,0,Value).
