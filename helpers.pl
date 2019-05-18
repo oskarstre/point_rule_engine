@@ -1,7 +1,7 @@
 :- module(helpers, [
                days_between/3, all_purchases/2, last_purchase/2, last_last_purchase/2, bigger_or_equal/2,
                now/1, add_days/3, date_between/3, purchases_days/3, add_points/5, add_price_convert_rate/9, add_price_convert_rate/11,
-               purchases_within_days/3, in_category/2
+               purchases_within_days/3, in_category/2, in_category2/2
                 ]).
 
 :- use_module(declarations).
@@ -87,5 +87,15 @@ purchases_within_days(PersonId, Days, (Purchases, Value)) :-
      findall(Purchase,purchase_within(PersonId, StartDate, Purchase), Purchases),
      foldl(add_purchase,Purchases,0,Value).
 
-in_category(Product, Category) :- category(Product, Category), !.
+% nondeterministic and slower
+in_category(Product, Category) :- category(Product, Category).
 in_category(Product, Category) :- subcategory(Category, ChildCategory), in_category(Product, ChildCategory).
+
+
+% deterministic and faster
+category_parent(C, C) :- !.
+category_parent(LookforCategory, Category) :- subcategory(NewCategory, Category), category_parent(LookforCategory, NewCategory).
+in_category2(Product, Category) :- category(Product, Category), !.
+in_category2(Product, Category) :- category(Product, CategoryNew), category_parent(Category, CategoryNew).
+
+
