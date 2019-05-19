@@ -3,7 +3,7 @@
                          new_one_time_offer/1, new_subcategory/2,
                          purchase/7,  category_name/1, category/2, channel/1,
                          location/1, point_type/1, campaign/1, product/1, level/3,
-                         one_time_offer/1, prize/3, point/5, speed/2, subcategory/2
+                         one_time_offer/1, prize/3, point/5, subcategory/2
                 ]).
 
 
@@ -19,7 +19,6 @@
 :- dynamic one_time_offer/1.
 :- dynamic prize/3.
 :- dynamic point/5.
-:- dynamic speed/2.
 :- dynamic subcategory/2.
 
 % keeps track of rules which should be used only one time

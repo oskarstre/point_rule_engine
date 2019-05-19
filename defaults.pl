@@ -1,10 +1,10 @@
 :- module(defaults, [
-               price_convert_rate/9, price_convert_rate/11
+              set_defaults/0
                 ]).
-:- dynamic price_convert_rate/9, price_convert_rate/11.
+:- use_module(rules).
 
 % on format point_type, channel, region, campaign, product, category,convert rate, add_points, rule_id
-price_convert_rate(default ,* , *, *, *, *, 1, 100, default_rule).
+set_defaults :- assert(price_convert_rate(default ,* , *, *, *, *, 1, 100, default_rule)).
 
 
 % we can have convertion rates between dates like this

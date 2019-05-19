@@ -99,3 +99,4 @@ in_category2(Product, Category) :- category(Product, Category), !.
 in_category2(Product, Category) :- category(Product, CategoryNew), category_parent(Category, CategoryNew).
 
 
+
