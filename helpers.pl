@@ -87,12 +87,12 @@ purchases_within_days(PersonId, Days, (Purchases, Value)) :-
      findall(Purchase,purchase_within(PersonId, StartDate, Purchase), Purchases),
      foldl(add_purchase,Purchases,0,Value).
 
-% nondeterministic and slower
+% nondeterministic and slower, top down
 in_category(Product, Category) :- category(Product, Category).
 in_category(Product, Category) :- subcategory(Category, ChildCategory), in_category(Product, ChildCategory).
 
 
-% deterministic and faster
+% deterministic and faster, bottom up
 category_parent(C, C) :- !.
 category_parent(LookforCategory, Category) :- subcategory(NewCategory, Category), category_parent(LookforCategory, NewCategory).
 in_category2(Product, Category) :- category(Product, Category), !.
