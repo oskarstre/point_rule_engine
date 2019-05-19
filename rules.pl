@@ -16,7 +16,7 @@ handle_constraint_total_time(RuleId, PersonId) :-
     purchases_within_days(PersonId, WithinDays, (Purchases, Value)),
     (   (NeededAmount == *; Value >= NeededAmount) -> true ; fail ),
     length(Purchases, NumPurchases),
-    (   (NeededNumberOfPurchases == * ; NumPurchases >= NeededNumberOfPurchases)), !.
+    (   (NeededNumberOfPurchases == * ; NumPurchases >= NeededNumberOfPurchases) -> true ; fail), !.
 
 
 point_logic(purchase(PersonId, Product, _Price, Channel, Location, Campaign, _Date),
