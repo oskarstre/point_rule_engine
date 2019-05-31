@@ -1,7 +1,7 @@
 :- module(helpers, [
                days_between/3, all_purchases/2, last_purchase/2, last_last_purchase/2, bigger_or_equal/2,
                now/1, add_days/3, date_between/3, purchases_days/3, add_points/5, add_price_convert_rate/9, add_price_convert_rate/11,
-               purchases_within_days/3, in_category/2, in_category2/2
+               purchases_within_days/4, in_category/2, in_category2/2
                 ]).
 
 :- use_module(declarations).
@@ -80,8 +80,8 @@ purchase_within(PersonId, StartDate, Purchase) :-
 add_purchase(purchase(_PersonId, _ProductId, Price, _Channel, _Location, _Campaign, _Date), Y, Sum) :- Sum is Y + Price.
 
 % send in zero for purchases today
-purchases_within_days(PersonId, Days, (Purchases, Value)) :-
-     now(Now),
+purchases_within_days(PersonId, Days, Date, (Purchases, Value)) :-
+     (Date == now -> now(Now) ; Now = Date ), !,
      DaysNeg is Days * -1,
      add_days(Now, DaysNeg, StartDate),
      findall(Purchase,purchase_within(PersonId, StartDate, Purchase), Purchases),

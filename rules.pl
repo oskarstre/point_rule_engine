@@ -10,23 +10,23 @@
 
 :- dynamic point_constraint_total_time/4.
 
-handle_constraint_total_time(RuleId, _) :- not(point_constraint_total_time(RuleId, _, _, _)), !.
-handle_constraint_total_time(RuleId, PersonId) :-
+handle_constraint_total_time(RuleId, _, _) :- not(point_constraint_total_time(RuleId, _, _, _)), !.
+handle_constraint_total_time(RuleId, PersonId, Date) :-
     point_constraint_total_time(RuleId, NeededAmount, WithinDays, NeededNumberOfPurchases),
-    purchases_within_days(PersonId, WithinDays, (Purchases, Value)),
+    purchases_within_days(PersonId, WithinDays, Date, (Purchases, Value)),
     (   (NeededAmount == *; Value >= NeededAmount) -> true ; fail ),
     length(Purchases, NumPurchases),
     (   (NeededNumberOfPurchases == * ; NumPurchases >= NeededNumberOfPurchases) -> true ; fail), !.
 
 
-point_logic(purchase(PersonId, Product, _Price, Channel, Location, Campaign, _Date),
+point_logic(purchase(PersonId, Product, _Price, Channel, Location, Campaign, Date),
             price_convert_rate(_PointType, CChannel, CLocation, CCampaign, CProduct, CCategory,_ConvRate, _AddPoints, RuleId)) :-
     (   (CCategory == * ; category(Product, CCategory)) -> true ; fail ),
     (   (CProduct == Product ; CProduct == *) -> true ; fail ),
     (   (CChannel == Channel ; CChannel == *) -> true ; fail ),
     (   (CLocation == Location ; CLocation == *) -> true ; fail),
     (   (CCampaign == Campaign ; CCampaign == *) -> true ; fail),
-    handle_constraint_total_time(RuleId, PersonId).
+    handle_constraint_total_time(RuleId, PersonId, Date).
 
 
 points_date(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date), (PointType, ConvRate, AddPoints, RuleId)) :-
@@ -101,4 +101,34 @@ test(date_purchase) :-
     P2 = purchase(petter, product1, 1000, web, norway, *, date(2020,1,1)),
     get_all_points_from_purchase(P2, []).
 
+% purchased at least for 2000,- in the last 20 days
+test(within_time) :-
+    mockup,
+    set_defaults,
+    add_point_constraint_total_time(default_rule, 2000, 20, *),
+    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
+    P2 = purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
+    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
+    get_all_points_from_purchase(P2, Points),
+    Points == [(default,2,200,default_rule)].
+
+test(not_within_time) :-
+    mockup,
+    set_defaults,
+    add_point_constraint_total_time(default_rule, 2000, 5, *),
+    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
+    P2 = purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
+    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
+    get_all_points_from_purchase(P2, Points),
+    Points == [].
+
+test(within_time_but_to_few_purchases) :-
+    mockup,
+    set_defaults,
+    add_point_constraint_total_time(default_rule, 2000, 20, 3),
+    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
+    P2 = purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
+    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
+    get_all_points_from_purchase(P2, Points),
+    Points == [].
 

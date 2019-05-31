@@ -7,6 +7,7 @@
 set_defaults :-
     retractall(price_convert_rate(_,_,_,_,_,_,_,_,_)),
     retractall(price_convert_rate(_,_,_,_,_,_,_,_,_,_,_)),
+    retractall(point_constraint_total_time(_, _, _, _)),
     assert(price_convert_rate(default ,* , *, *, *, *, 2, 200, default_rule)).
 
 

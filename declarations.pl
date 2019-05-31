@@ -45,7 +45,8 @@ new_channel(ChannelName) :- channel(ChannelName), !.
 new_channel(ChannelName) :- assert(channel(ChannelName)).
 
 new_purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date) :-
-    product(ProductId), channel(Channel), location(Location), campaign(Campaign),
+    product(ProductId), channel(Channel), location(Location),
+    (   (campaign(Campaign) ; Campaign == *) -> true ; fail) , !,
     assert(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date)).
 
 new_category_name(CN) :- category_name(CN), !.
