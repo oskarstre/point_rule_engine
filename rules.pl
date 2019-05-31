@@ -1,14 +1,11 @@
 :- module(rules, [
-              get_all_points_from_purchase/2,
-              price_convert_rate/9, price_convert_rate/11, point_constraint_total_time/4, add_point_constraint_total_time/4
+              get_all_points_from_purchase/2, add_points/3,
+              add_point_constraint_total_time/4
                 ]).
 
 :- use_module(declarations).
 :- use_module(helpers).
 
-:- dynamic price_convert_rate/9, price_convert_rate/11.
-
-:- dynamic point_constraint_total_time/4.
 
 handle_constraint_total_time(RuleId, _, _) :- not(point_constraint_total_time(RuleId, _, _, _)), !.
 handle_constraint_total_time(RuleId, PersonId, Date) :-
@@ -21,7 +18,7 @@ handle_constraint_total_time(RuleId, PersonId, Date) :-
 
 point_logic(purchase(PersonId, Product, _Price, Channel, Location, Campaign, Date),
             price_convert_rate(_PointType, CChannel, CLocation, CCampaign, CProduct, CCategory,_ConvRate, _AddPoints, RuleId)) :-
-    (   (CCategory == * ; category(Product, CCategory)) -> true ; fail ),
+    (   (CCategory == * ; in_category2(Product, CCategory)) -> true ; fail ),
     (   (CProduct == Product ; CProduct == *) -> true ; fail ),
     (   (CChannel == Channel ; CChannel == *) -> true ; fail ),
     (   (CLocation == Location ; CLocation == *) -> true ; fail),
@@ -50,6 +47,24 @@ add_point_constraint_total_time(RuleId, _, _, _) :- point_constraint_total_time(
 add_point_constraint_total_time(_, *, _, *) :- fail, !.
 add_point_constraint_total_time(RuleId, NeededAmount, WithinDays, NeededNumberOfPurchases) :-
     assert(point_constraint_total_time(RuleId, NeededAmount, WithinDays, NeededNumberOfPurchases)).
+
+% -- point math --   [(default,2,200,default_rule)]
+
+add_points(PointsList, Purchase, ExpiresDate) :-
+    member((PointsType, PointsRate, PointsExtra, RuleId) , PointsList),
+    Purchase = purchase(CustomerId, _, Price, _, _, _, _),
+    Points is PointsExtra + (Price * PointsRate),
+    writeln("Adding points"),
+    add_points(CustomerId, PointsType, Points, Purchase, ExpiresDate, RuleId),
+    fail.
+
+add_points(_,_,_) :- !.
+
+add_points(CustomerId, PointsType, Points, Purchase, ExpireDate, RuleId) :-
+    writeln("Asserting"),
+    assert(point(CustomerId, PointsType, Points, Purchase, ExpireDate, RuleId)).
+
+
 
 :- begin_tests(rules).
 :- use_module(rules).
@@ -122,6 +137,7 @@ test(not_within_time) :-
     get_all_points_from_purchase(P2, Points),
     Points == [].
 
+% there must be at least three purchases
 test(within_time_but_to_few_purchases) :-
     mockup,
     set_defaults,
