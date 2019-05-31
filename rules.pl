@@ -54,13 +54,11 @@ add_points(PointsList, Purchase, ExpiresDate) :-
     member((PointsType, PointsRate, PointsExtra, RuleId) , PointsList),
     Purchase = purchase(CustomerId, _, Price, _, _, _, _),
     Points is PointsExtra + (Price * PointsRate),
-    add_points(CustomerId, PointsType, Points, Purchase, ExpiresDate, RuleId),
+    new_points(CustomerId, PointsType, Points, Purchase, ExpiresDate, RuleId),
     fail.
 
 add_points(_,_,_) :- !.
 
-add_points(CustomerId, PointsType, Points, Purchase, ExpireDate, RuleId) :-
-    assert(point(CustomerId, PointsType, Points, Purchase, ExpireDate, RuleId)).
 
 
 
