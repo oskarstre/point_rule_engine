@@ -97,6 +97,7 @@ test(default_purchase) :-
     set_defaults,
     P = purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
     get_all_points_from_purchase(P, Points),
+    writeln(Points),
     [(Point_type,Convert_rate,Add_points,Rule_id)] = Points,
     Point_type == default,
     Rule_id == default_rule,

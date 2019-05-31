@@ -52,4 +52,4 @@ test(person_inc_level) :-
     findall(point(A,B,C,D,E,F), point(A,B,C,D,E,F), All),
     All = [point(petter, default, 1100, purchase(petter, product1, 100, web, norway, *, date(2019, 1, 1)), date(2030, 1, 1), basic_rule), point(petter, default, 1100, purchase(petter, product2, 100, web, norway, *, date(2019, 1, 2)), date(2030, 1, 1), basic_rule)],
     update_person_level(petter),
-    person_level(petter,1).
+    person_level(petter,1), !.

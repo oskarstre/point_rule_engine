@@ -2,6 +2,7 @@
               set_defaults/0
                 ]).
 :- use_module(rules).
+:- use_module(declarations).
 
 % on format point_type, channel, region, campaign, product, category,convert rate, add_points, rule_id
 set_defaults :-
