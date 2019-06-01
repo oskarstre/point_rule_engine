@@ -71,5 +71,3 @@ test(level_rule_constraint_got_points) :-
     P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
     new_level_constraint(basic_rule, 0),
     get_all_points_from_purchase(P1, [(default,10,100,basic_rule)]).
-
-
