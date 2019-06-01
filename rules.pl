@@ -16,6 +16,12 @@ handle_constraint_total_time(RuleId, PersonId, Date) :-
     (   (NeededNumberOfPurchases == * ; NumPurchases >= NeededNumberOfPurchases) -> true ; fail), !.
 
 
+handle_constraint_level(RuleId, _) :-  not(level_constraint(RuleId, _)), !.
+handle_constraint_level(RuleId, CustomerId) :-
+    person_level(CustomerId, Level),
+    level_constraint(RuleId, MinLevel),
+    Level >= MinLevel, !.
+
 point_logic(purchase(PersonId, Product, _Price, Channel, Location, Campaign, Date),
             price_convert_rate(_PointType, CChannel, CLocation, CCampaign, CProduct, CCategory,_ConvRate, _AddPoints, RuleId)) :-
     (   (CCategory == * ; in_category2(Product, CCategory)) -> true ; fail ),
@@ -23,7 +29,8 @@ point_logic(purchase(PersonId, Product, _Price, Channel, Location, Campaign, Dat
     (   (CChannel == Channel ; CChannel == *) -> true ; fail ),
     (   (CLocation == Location ; CLocation == *) -> true ; fail),
     (   (CCampaign == Campaign ; CCampaign == *) -> true ; fail),
-    handle_constraint_total_time(RuleId, PersonId, Date).
+    handle_constraint_total_time(RuleId, PersonId, Date),
+    handle_constraint_level(RuleId, PersonId).
 
 
 points_date(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date), (PointType, ConvRate, AddPoints, RuleId)) :-
@@ -95,7 +102,6 @@ test(default_purchase) :-
     set_defaults,
     P = purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
     get_all_points_from_purchase(P, Points),
-    writeln(Points),
     [(Point_type,Convert_rate,Add_points,Rule_id)] = Points,
     Point_type == default,
     Rule_id == default_rule,
