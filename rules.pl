@@ -1,10 +1,11 @@
 :- module(rules, [
-              get_all_points_from_purchase/2, add_points/3,
+              get_all_points_from_purchase/2, add_points/3, handle_constraint_not_together/3,
               add_point_constraint_total_time/4
                 ]).
 
 :- use_module(declarations).
 :- use_module(helpers).
+:- use_module(library(apply)).
 
 
 handle_constraint_total_time(RuleId, _, _) :- not(point_constraint_total_time(RuleId, _, _, _)), !.
@@ -22,11 +23,23 @@ handle_constraint_level(RuleId, CustomerId) :-
     level_constraint(RuleId, MinLevel),
     Level >= MinLevel, !.
 
-%handle_contraint_not_togheter(RuleId, [Point|Points], NewPoints) :-
-%    not_togheter(
+not_together_rec(_, P, [], P) :- !.
+not_together_rec(Purchase, Points, [H|T], NewPoints) :-
+    not_together(H, Excludes),
+    include({Excludes}/[P]>>(P = point(_,_,_,RuleId), memberchk(RuleId, Excludes)), Points, PointsExcludes),
+    best_of(Purchase, PointsExcludes, Excludes, [point(_,_,_,BestId)]),
+    exclude({Excludes, BestId}/[P]>>(P = point(_,_,_,RuleId), RuleId \= BestId, memberchk(RuleId, Excludes)), Points, Points2),
+    not_together_rec(Purchase, Points2, T, NewPoints).
 
-point_logic(purchase(PersonId, Product, _Price, Channel, Location, Campaign, Date),
-            price_convert_rate(_PointType, CChannel, CLocation, CCampaign, CProduct, CCategory,_ConvRate, _AddPoints, RuleId)) :-
+
+
+handle_constraint_not_together(Purchase, Points, NewPoints) :-
+    maplist([In,RuleId]>>(In = point(_, _, _, RuleId)), Points, PointIds),
+    findall(P, (member(P, PointIds), not_together(P,_)), ExcludeCandidates),
+    not_together_rec(Purchase, Points, ExcludeCandidates, NewPoints).
+
+point_logic(Purchase, price_convert_rate(_PointType, CChannel, CLocation, CCampaign, CProduct, CCategory,_ConvRate, _AddPoints, RuleId)) :-
+    purchase(PersonId, Product, _Price, Channel, Location, Campaign, Date) = Purchase,
     (   (CCategory == * ; in_category2(Product, CCategory)) -> true ; fail ),
     (   (CProduct == Product ; CProduct == *) -> true ; fail ),
     (   (CChannel == Channel ; CChannel == *) -> true ; fail ),

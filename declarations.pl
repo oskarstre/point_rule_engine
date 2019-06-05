@@ -79,8 +79,7 @@ new_points(CustomerId, PointsType, Points, Purchase, ExpireDate, RuleId) :-
 
 
 add_not_togheter(M,L) :-
-    exclude({M}/[In]>>(M == In), L, ExcludeList),
-    assert(not_together(M, ExcludeList)).
+    assert(not_together(M, L)).
 
 new_not_together(L) :-
     forall(member(M,L),

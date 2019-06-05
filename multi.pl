@@ -37,6 +37,7 @@ best_of(Purchase, Points, Excludes, NewPoints) :-
 :- use_module(defaults).
 :- use_module(multi).
 
+
 mockup :-
     reset_data,
     retractall(price_convert_rate(_,_,_,_,_,_,_,_,_)),
@@ -59,8 +60,14 @@ test(find_best_of) :-
     best_of(P1, Points, [extra_rule, extra_rule2, extra_rule3], NewPoints),
     NewPoints == [point(default,30,300,extra_rule),point(default,10,100,basic_rule)].
 
-
-
+% allow only one extra_rule
+test(not_together) :-
+    mockup,
+    P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
+    new_not_together([extra_rule, extra_rule2]),
+    Points = [point(default,40,400,extra_rule2), point(default,30,300,extra_rule), point(default,10,100,basic_rule)],
+    handle_constraint_not_together(P1, Points, NewPoints),
+    NewPoints == [point(default,40,400,extra_rule2),point(default,10,100,basic_rule)].
 
 
 
