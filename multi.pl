@@ -46,13 +46,14 @@ mockup :-
     add_price_convert_rate(default, web, *, *, *, *,30, 300, extra_rule),
     add_price_convert_rate(default, web, *, *, *, *,20, 200, extra_rule2).
 
-
+% one purchase could match many rules
 test(many_rules) :-
     mockup,
     P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
     get_all_points_from_purchase(P1, Points),
     Points == [point(default,20,200,extra_rule2),point(default,30,300,extra_rule),point(default,10,100,basic_rule)].
 
+% which of the rules are best
 test(find_best_of) :-
     mockup,
     P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
@@ -69,6 +70,15 @@ test(not_together) :-
     handle_constraint_not_together(P1, Points, NewPoints),
     NewPoints == [point(default,40,400,extra_rule2),point(default,10,100,basic_rule)].
 
+
+% allow only one if all is not togheter
+test(not_together_one) :-
+    mockup,
+    P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
+    new_not_together([basic_rule, extra_rule, extra_rule2]),
+    Points = [point(default,40,400,extra_rule2), point(default,30,300,extra_rule), point(default,10,100,basic_rule)],
+    handle_constraint_not_together(P1, Points, NewPoints),
+    NewPoints == [point(default,40,400,extra_rule2)].
 
 
 
