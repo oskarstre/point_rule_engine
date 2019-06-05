@@ -36,13 +36,13 @@ point_logic(purchase(PersonId, Product, _Price, Channel, Location, Campaign, Dat
     handle_constraint_level(RuleId, PersonId).
 
 
-points_date(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date), (PointType, ConvRate, AddPoints, RuleId)) :-
+points_date(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date), point(PointType, ConvRate, AddPoints, RuleId)) :-
     price_convert_rate(PointType, CChannel, CLocation, CCampaign, CProduct, CCategory, ConvRate, AddPoints, StartDate, EndDate, RuleId),
     point_logic(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date),
                 price_convert_rate(PointType, CChannel, CLocation, CCampaign, CProduct, CCategory, ConvRate, AddPoints, RuleId)),
     date_between(StartDate, EndDate, Date).
 
-points(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date), (PointType, ConvRate, AddPoints, RuleId)) :-
+points(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date), point(PointType, ConvRate, AddPoints, RuleId)) :-
     price_convert_rate(PointType, CChannel, CLocation, CCampaign, CProduct, CCategory, ConvRate, AddPoints, RuleId),
     point_logic(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date),
                 price_convert_rate(PointType, CChannel, CLocation, CCampaign, CProduct, CCategory, ConvRate, AddPoints, RuleId)).
@@ -61,7 +61,7 @@ add_point_constraint_total_time(RuleId, NeededAmount, WithinDays, NeededNumberOf
 % -- point math --   [(default,2,200,default_rule)]
 
 add_points(PointsList, Purchase, ExpiresDate) :-
-    member((PointsType, PointsRate, PointsExtra, RuleId) , PointsList),
+    member(point(PointsType, PointsRate, PointsExtra, RuleId) , PointsList),
     Purchase = purchase(CustomerId, _, Price, _, _, _, _),
     Points is PointsExtra + (Price * PointsRate),
     new_points(CustomerId, PointsType, Points, Purchase, ExpiresDate, RuleId),
@@ -105,7 +105,7 @@ test(default_purchase) :-
     set_defaults,
     P = purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
     get_all_points_from_purchase(P, Points),
-    [(Point_type,Convert_rate,Add_points,Rule_id)] = Points,
+    [point(Point_type,Convert_rate,Add_points,Rule_id)] = Points,
     Point_type == default,
     Rule_id == default_rule,
     Add_points == 200,
@@ -118,7 +118,7 @@ test(date_purchase) :-
     mockup,
     assert(price_convert_rate(default ,* , *, *, *, *, 2, 200, date(2018,1,1), date(2019,2,1),date_rule)),
     P = purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
-    get_all_points_from_purchase(P, [(default,2,200,date_rule)]),
+    get_all_points_from_purchase(P, [point(default,2,200,date_rule)]),
     P2 = purchase(petter, product1, 1000, web, norway, *, date(2020,1,1)),
     get_all_points_from_purchase(P2, []).
 
@@ -131,7 +131,7 @@ test(within_time) :-
     P2 = purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
     new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
     get_all_points_from_purchase(P2, Points),
-    Points == [(default,2,200,default_rule)].
+    Points == [point(default,2,200,default_rule)].
 
 test(not_within_time) :-
     mockup,

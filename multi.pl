@@ -1,16 +1,16 @@
 :- module(multi, [
-             find_max_points/3, best_of/3
+             find_max_points/3, best_of/3, max_points/3
           ]).
 
 :- use_module(library(apply)).
 
 
-get_points((Type, Rate, Bonus, RuleId), Amount, (Type, Rate, Bonus, RuleId, Points)) :-
+get_points(point(Type, Rate, Bonus, RuleId), Amount, point(Type, Rate, Bonus, RuleId, Points)) :-
     Points is Bonus + (Rate * Amount), !.
 
-max_points((_, _, _, _, Points1),  (Type2, Rate2, Bonus2, RuleId2, Points2),  R) :-
+max_points(point(_, _, _, _, Points1),  point(Type2, Rate2, Bonus2, RuleId2, Points2),  R) :-
     Points2 >= Points1,
-    R =  (Type2, Rate2, Bonus2, RuleId2, Points2), !.
+    R =  point(Type2, Rate2, Bonus2, RuleId2, Points2), !.
 max_points(A,_, A).
 
 find_max_points(Points, Purchase, Max) :-
@@ -18,14 +18,15 @@ find_max_points(Points, Purchase, Max) :-
    maplist({Price}/[In,Out]>>get_points(In, Price, Out), Points, WithPoints),
    foldl(max_points, WithPoints, [], Max).
 
-best_of(Points, Purchase, NewPoints) :-
-   find_max_points(Points, Purchase, (_,_,_,Best, _)),
-   include({Best}/[In]>> (In = (_,_,_,Best)), Points, NewPoints).
 
-best_of(_, Points, [], Points).
+best_of(Points, Purchase, NewPoints) :-
+   find_max_points(Points, Purchase, point(_,_,_,Best, _)),
+   include({Best}/[In]>> (In = point(_,_,_,Best)), Points, NewPoints).
+
+best_of(_, _, [], _).
 best_of(Purchase, Points, Excludes, NewPoints) :-
-   best_of(Points, Purchase, [(_,_,_,BestId)]),
-   include({Excludes, BestId}/[In]>>(In = (_,_,_,Id), (not(memberchk(Id, Excludes)) ; Id == BestId), !), Points, NewPoints).
+   best_of(Points, Purchase, [point(_,_,_,BestId)]),
+   include({Excludes, BestId}/[In]>>(In = point(_,_,_,Id), (not(memberchk(Id, Excludes)) ; Id == BestId), !), Points, NewPoints).
 
 
 :- begin_tests(multi).
@@ -49,14 +50,14 @@ test(many_rules) :-
     mockup,
     P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
     get_all_points_from_purchase(P1, Points),
-    Points == [(default,20,200,extra_rule2),(default,30,300,extra_rule),(default,10,100,basic_rule)].
+    Points == [point(default,20,200,extra_rule2),point(default,30,300,extra_rule),point(default,10,100,basic_rule)].
 
 test(find_best_of) :-
     mockup,
     P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
     get_all_points_from_purchase(P1, Points),
     best_of(P1, Points, [extra_rule, extra_rule2, extra_rule3], NewPoints),
-    NewPoints == [(default,30,300,extra_rule),(default,10,100,basic_rule)].
+    NewPoints == [point(default,30,300,extra_rule),point(default,10,100,basic_rule)].
 
 
 
