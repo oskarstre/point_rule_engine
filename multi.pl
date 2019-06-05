@@ -80,7 +80,14 @@ test(not_together_one) :-
     handle_constraint_not_together(P1, Points, NewPoints),
     NewPoints == [point(default,40,400,extra_rule2)].
 
-
+test(not_together_two_rules) :-
+    mockup,
+    P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
+    new_not_together([extra_rule, extra_rule2]),
+    new_not_together([extra_rule2, basic_rule]),
+    Points = [point(default,40,400,extra_rule2), point(default,30,300,extra_rule), point(default,10,100,basic_rule)],
+    handle_constraint_not_together(P1, Points, NewPoints),
+    NewPoints == [point(default,40,400,extra_rule2)].
 
 
 

@@ -36,7 +36,7 @@ not_together_rec(Purchase, Points, [H|T], NewPoints) :-
 handle_constraint_not_together(Purchase, Points, NewPoints) :-
     maplist([In,RuleId]>>(In = point(_, _, _, RuleId)), Points, PointIds),
     findall(P, (member(P, PointIds), not_together(P,_)), ExcludeCandidates),
-    not_together_rec(Purchase, Points, ExcludeCandidates, NewPoints).
+    not_together_rec(Purchase, Points, ExcludeCandidates, NewPoints), !.
 
 point_logic(Purchase, price_convert_rate(_PointType, CChannel, CLocation, CCampaign, CProduct, CCategory,_ConvRate, _AddPoints, RuleId)) :-
     purchase(PersonId, Product, _Price, Channel, Location, Campaign, Date) = Purchase,
