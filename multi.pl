@@ -25,10 +25,7 @@ best_of(Points, Purchase, NewPoints) :-
 best_of(_, Points, [], Points).
 best_of(Purchase, Points, Excludes, NewPoints) :-
    best_of(Points, Purchase, [(_,_,_,BestId)]),
-   maplist([In,Id]>> (In = (_,_,_,Id)), Points, Ids),
-   subtract(Ids, Excludes, T1),
-   append(T1, [BestId], NewIds),
-   include({NewIds}/[In]>>(In = (_,_,_,Id), memberchk(Id,NewIds)), Points, NewPoints).
+   include({Excludes, BestId}/[In]>>(In = (_,_,_,Id), (not(memberchk(Id, Excludes)) ; Id == BestId), !), Points, NewPoints).
 
 
 :- begin_tests(multi).
@@ -58,8 +55,8 @@ test(find_best_of) :-
     mockup,
     P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
     get_all_points_from_purchase(P1, Points),
-    best_of(P1, Points, [extra_rule, extra_rule2], NewPoints),
-    writeln(NewPoints).
+    best_of(P1, Points, [extra_rule, extra_rule2, extra_rule3], NewPoints),
+    NewPoints == [(default,30,300,extra_rule),(default,10,100,basic_rule)].
 
 
 

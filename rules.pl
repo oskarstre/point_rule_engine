@@ -22,6 +22,9 @@ handle_constraint_level(RuleId, CustomerId) :-
     level_constraint(RuleId, MinLevel),
     Level >= MinLevel, !.
 
+%handle_contraint_not_togheter(RuleId, [Point|Points], NewPoints) :-
+%    not_togheter(
+
 point_logic(purchase(PersonId, Product, _Price, Channel, Location, Campaign, Date),
             price_convert_rate(_PointType, CChannel, CLocation, CCampaign, CProduct, CCategory,_ConvRate, _AddPoints, RuleId)) :-
     (   (CCategory == * ; in_category2(Product, CCategory)) -> true ; fail ),
