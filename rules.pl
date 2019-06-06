@@ -78,7 +78,7 @@ add_points(PointsList, Purchase, ExpiresDate) :-
     member(point(PointsType, PointsRate, PointsExtra, RuleId) , PointsList),
     Purchase = purchase(CustomerId, _, Price, _, _, _, _),
     Points is PointsExtra + (Price * PointsRate),
-    new_points(CustomerId, PointsType, Points, Purchase, ExpiresDate, RuleId),
+    new_points(point(CustomerId, PointsType, Points, Purchase, ExpiresDate, RuleId)),
     fail.
 
 add_points(_,_,_) :- !.
@@ -94,14 +94,14 @@ add_points(_,_,_) :- !.
 
 mockup :-
     reset_data,
-    new_category_name(cat_top),
-    new_category_name(cat_child1),
-    new_product(product1),
-    new_product(product1),
-    new_category(product1, cat_child1),
-    new_subcategory(cat_top, cat_child1),
-    new_channel(web),
-    new_location(norway).
+    new_category_name(category_name(cat_top)),
+    new_category_name(category_name(cat_child1)),
+    new_product(product(product1)),
+    new_product(product(product1)),
+    new_category(category(product1, cat_child1)),
+    new_subcategory(subcategory(cat_top, cat_child1)),
+    new_channel(channel(web)),
+    new_location(location(norway)).
 
 clear_price_convert_rate :-
     retractall(price_convert_rate(_,_,_,_,_,_,_,_,_)),
@@ -141,9 +141,9 @@ test(within_time) :-
     mockup,
     set_defaults,
     add_point_constraint_total_time(default_rule, 2000, 20, *),
-    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
+    new_purchase(purchase(petter, product1, 1000, web, norway, *, date(2019,1,1))),
     P2 = purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
-    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
+    new_purchase(P2),
     get_all_points_from_purchase(P2, Points),
     Points == [point(default,2,200,default_rule)].
 
@@ -151,9 +151,9 @@ test(not_within_time) :-
     mockup,
     set_defaults,
     add_point_constraint_total_time(default_rule, 2000, 5, *),
-    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
+    new_purchase(purchase(petter, product1, 1000, web, norway, *, date(2019,1,1))),
     P2 = purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
-    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
+    new_purchase(P2),
     get_all_points_from_purchase(P2, Points),
     Points == [].
 
@@ -162,9 +162,11 @@ test(within_time_but_to_few_purchases) :-
     mockup,
     set_defaults,
     add_point_constraint_total_time(default_rule, 2000, 20, 3),
-    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,1)),
+    new_purchase(purchase(petter, product1, 1000, web, norway, *, date(2019,1,1))),
     P2 = purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
-    new_purchase(petter, product1, 1000, web, norway, *, date(2019,1,10)),
+    new_purchase(P2),
     get_all_points_from_purchase(P2, Points),
     Points == [].
+
+
 

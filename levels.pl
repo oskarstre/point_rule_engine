@@ -30,11 +30,11 @@ update_person_level(_) :- !.
 
 mockup :-
     reset_data,
-    new_level(0, default, 0, silver),
-    new_level(1, default, 100, gold),
+    new_level(level(0, default, 0, silver)),
+    new_level(level(1, default, 100, gold)),
     assert(person_level(petter, 0)),
     retractall(price_convert_rate(_,_,_,_,_,_,_,_,_)),
-    new_point_type(default),
+    new_point_type(point_type(default)),
     add_price_convert_rate(default, web, *, *, *, *,10, 100, basic_rule).
 
 
@@ -61,7 +61,7 @@ test(level_rule_constraint_no_points) :-
     mockup,
     price_convert_rate(_,_,_,_,_,_,_,_,basic_rule),
     P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
-    new_level_constraint(basic_rule, 1),
+    new_level_constraint(level_constraint(basic_rule, 1)),
     get_all_points_from_purchase(P1, []).
 
 % but points from rule if rule needs only level 0
@@ -69,5 +69,21 @@ test(level_rule_constraint_got_points) :-
     mockup,
     price_convert_rate(_,_,_,_,_,_,_,_,basic_rule),
     P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
-    new_level_constraint(basic_rule, 0),
+    new_level_constraint(level_constraint(basic_rule, 0)),
     get_all_points_from_purchase(P1, [point(default,10,100,basic_rule)]).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
