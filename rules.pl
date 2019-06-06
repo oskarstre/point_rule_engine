@@ -6,6 +6,7 @@
 :- use_module(declarations).
 :- use_module(helpers).
 :- use_module(library(apply)).
+:- use_module(multi).
 
 
 handle_constraint_total_time(RuleId, _, _) :- not(point_constraint_total_time(RuleId, _, _, _)), !.

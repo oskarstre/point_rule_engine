@@ -1,5 +1,5 @@
 :- module(multi, [
-             find_max_points/3, best_of/3, max_points/3
+             find_max_points/3, best_of/3, max_points/3, best_of/4
           ]).
 
 :- use_module(library(apply)).
