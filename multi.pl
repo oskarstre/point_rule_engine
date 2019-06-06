@@ -99,17 +99,13 @@ test(not_together_no_rules) :-
 
 test(not_before) :-
     mockup,
-    new_category_name(category_name(cat_top)),
-    new_category_name(category_name(cat_child1)),
     new_product(product(product1)),
-    new_product(product(product1)),
-    new_category(category(product1, cat_child1)),
-    new_subcategory(subcategory(cat_top, cat_child1)),
     new_channel(channel(web)),
     new_location(location(norway)),
     P1 = purchase(petter, product1, 100, web, norway, *, date(2019,1,1)),
     new_purchase(P1),
     get_all_points_from_purchase(P1, Points),
+    add_points(Points, P1, date(2022,1,1)),
     writeln(Points).
 
 

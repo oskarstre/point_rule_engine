@@ -1,5 +1,5 @@
 :- module(rules, [
-              get_all_points_from_purchase/2, add_points/3, handle_constraint_not_together/3,
+              get_all_points_from_purchase/2, add_points/3, handle_constraint_not_together/3, handle_constraint_not_before/2,
               add_point_constraint_total_time/4
                 ]).
 
@@ -32,12 +32,17 @@ not_together_rec(Purchase, Points, [H|T], NewPoints) :-
     exclude({Excludes, BestId}/[P]>>(P = point(_,_,_,RuleId), RuleId \= BestId, memberchk(RuleId, Excludes)), Points, Points2),
     not_together_rec(Purchase, Points2, T, NewPoints).
 
-
-
 handle_constraint_not_together(Purchase, Points, NewPoints) :-
     maplist([In,RuleId]>>(In = point(_, _, _, RuleId)), Points, PointIds),
     findall(P, (member(P, PointIds), not_together(P,_)), ExcludeCandidates),
     not_together_rec(Purchase, Points, ExcludeCandidates, NewPoints), !.
+
+handle_constraint_not_before(RuleId, CustomerId) :-
+    point(CustomerId, _, _, _, _, OtherRuleId),
+    not_before(OtherRuleId, RuleId),
+    fail, !.
+
+handle_constraint_not_before(_, _) :- !.
 
 point_logic(Purchase, price_convert_rate(_PointType, CChannel, CLocation, CCampaign, CProduct, CCategory,_ConvRate, _AddPoints, RuleId)) :-
     purchase(PersonId, Product, _Price, Channel, Location, Campaign, Date) = Purchase,
@@ -47,7 +52,8 @@ point_logic(Purchase, price_convert_rate(_PointType, CChannel, CLocation, CCampa
     (   (CLocation == Location ; CLocation == *) -> true ; fail),
     (   (CCampaign == Campaign ; CCampaign == *) -> true ; fail),
     handle_constraint_total_time(RuleId, PersonId, Date),
-    handle_constraint_level(RuleId, PersonId).
+    handle_constraint_level(RuleId, PersonId),
+    handle_constraint_not_before(RuleId, PersonId).
 
 
 points_date(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date), point(PointType, ConvRate, AddPoints, RuleId)) :-

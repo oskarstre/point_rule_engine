@@ -107,7 +107,8 @@ reset_data :-
     retractall(subcategory(_,_)),
     retractall(person_level(_,_)),
     retractall(level_constraint(_,_)),
-    retractall(not_together(_,_)).
+    retractall(not_together(_,_)),
+    retractall(not_before(_,_)).
 
 
 
