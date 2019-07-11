@@ -28,6 +28,28 @@
 :- dynamic not_together/2.
 :- dynamic not_before/2.
 
+% keep track of versions
+% voucher
+% api
+% database
+% multiple categories
+% multiple products
+% number of products -> (qantity multiplier -> some points)
+% attributes on line level only
+% - order where you get points for buying two items together
+% - buy two and get three
+%
+% combine header rules and line rules
+
+% add loyalty program
+%
+% fields: header, line items * quantity, line amounts, header amounts,
+% vat
+%
+% order-lines and purchases
+%
+% UI
+
 
 % keeps track of rules which should be used only one time
 new_one_time_offer(RuleId) :- one_time_offer(RuleId), !.
