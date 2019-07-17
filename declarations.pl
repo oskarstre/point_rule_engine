@@ -1,14 +1,14 @@
 :- module(declarations, [new_product/1, new_campaign/1, new_point_type/1, new_location/1, new_channel/1, new_purchase/1,
                          new_category_name/1, new_category/1, new_level/1,
                          new_one_time_offer/1, new_subcategory/1, reset_data/0, new_level_constraint/1, new_points/1, new_not_together/1, new_not_before/1,
-                         purchase/7,  category_name/1, category/2, channel/1,
+                         purchase/8,  category_name/1, category/2, channel/1,
                          location/1, point_type/1, campaign/1, product/1, level/4,
                          one_time_offer/1, prize/3, point/6, subcategory/2, level_constraint/2, person_level/2,
                          price_convert_rate/9, price_convert_rate/11, point_constraint_total_time/4, not_together/2, not_before/2
                 ]).
 
 
-:- dynamic purchase/7.
+:- dynamic purchase/8.
 :- dynamic category_name/1.
 :- dynamic category/2.
 :- dynamic channel/1.
@@ -30,7 +30,7 @@
 
 % keep track of versions
 % voucher
-% api
+% api  
 % database
 % multiple categories
 % multiple products
@@ -38,7 +38,7 @@
 % attributes on line level only
 % - order where you get points for buying two items together
 % - buy two and get three
-%
+% 
 % combine header rules and line rules
 
 % add loyalty program
@@ -49,7 +49,7 @@
 % order-lines and purchases
 %
 % UI
-
+ 
 
 % keeps track of rules which should be used only one time
 new_one_time_offer(RuleId) :- one_time_offer(RuleId), !.
@@ -81,10 +81,10 @@ new_location(location(L)) :- assert(location(L)).
 new_channel(channel(ChannelName)) :- channel(ChannelName), !.
 new_channel(channel(ChannelName)) :- assert(channel(ChannelName)).
 
-new_purchase(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date)) :-
+new_purchase(purchase(PersonId, ProductId, Amount, Price, Channel, Location, Campaign, Date)) :-
     product(ProductId), channel(Channel), location(Location),
     (   (campaign(Campaign) ; Campaign == *) -> true ; fail) , !,
-    assert(purchase(PersonId, ProductId, Price, Channel, Location, Campaign, Date)).
+    assert(purchase(PersonId, ProductId, Amount, Price, Channel, Location, Campaign, Date)).
 
 new_category_name(category_name(CN)) :- category_name(CN), !.
 new_category_name(category_name(CN)) :- assert(category_name(CN)).
@@ -93,7 +93,7 @@ new_category(category(ProductId, CategoryName)) :- category_name(CategoryName), 
 
 new_subcategory(subcategory(C1, C2)) :- subcategory(C1, C2), !.
 new_subcategory(subcategory(C1, C2)) :-
-    category_name(C1),
+    category_name(C1),  
     category_name(C2),
     assert(subcategory(C1, C2)), !.
 
@@ -131,7 +131,6 @@ reset_data :-
     retractall(level_constraint(_,_)),
     retractall(not_together(_,_)),
     retractall(not_before(_,_)).
-
 
 
 
