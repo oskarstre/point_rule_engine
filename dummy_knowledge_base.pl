@@ -72,3 +72,4 @@
 :-	new_points(point(2, simple, 100,  a, date(2019, 12 ,30), 1)).
 
 %test
+% test2
