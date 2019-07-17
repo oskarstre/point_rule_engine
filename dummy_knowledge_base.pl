@@ -70,3 +70,5 @@
 :-	new_points(point(2, simple, 100,  a, date(2019, 12 ,30), 2)).
 :-	new_points(point(3, simple, 5000, a, date(2019, 12 ,30), 1)).
 :-	new_points(point(2, simple, 100,  a, date(2019, 12 ,30), 1)).
+
+%test
